@@ -1,89 +1,64 @@
 #pragma once
 #include <iostream>
 #include <string>
-//#include <experimental/string_view>
+#include <list>
 
 using namespace std;
-//using namespace std::experimental;
 
 class Editor {
 private:
-  class Position{
-  public:
-    Position() {
-
-    }
-
-    Position& operator++(){
-      if(text_size > 0 && pos < text_size)
-        this->pos++;
-      return *this;
-    }
-    Position& operator--(){
-      if(pos > 0)
-        this->pos--;
-      return *this;
-    }
-    void Insert(){
-      pos++;
-      text_size++;
-    }
-    size_t getPosition() const{
-      return pos;
-    }
-    void nextPosition(size_t next){
-      size_t newPosition = pos + next;
-      if(newPosition <= text_size)
-        pos = newPosition;
-      else {
-        pos = text_size;
-      }
-    }
-
-  private:
-    size_t pos = 0;
-    size_t text_size = 0;
-  };
-
-  Position* cursor;
-  string text;
-  string buffer; //for copy paste operations
-
+  list <char> textList;
+  list <char>::iterator pos;
+  list <char> buffer;
+  void customAdvance(list <char>::iterator& it, size_t num){
+    for (size_t i = 0; (i < num) && (it != textList.end()); ++i, ++it) { }
+  }
 public:
-  Editor(){
-    cursor = new Position();
+  explicit Editor(){
+    pos = textList.end();
   }
   void Left(){
-    --(*cursor);
+    if(pos != textList.begin())
+      --pos;
   }
   void Right(){
-    ++(*cursor);
+    if(pos != textList.end())
+      ++pos;
   }
   void Insert(char token){
-    text.insert(cursor->getPosition(), new char(token));
-    cursor->Insert();
+    textList.insert(pos, token);
   }
   void Cut(size_t tokens = 1){
-   buffer = text.substr(cursor->getPosition(), tokens);
-   text.erase(cursor->getPosition(), tokens);
+    buffer.clear();
+    auto tokensIt = pos;
+    customAdvance(tokensIt, tokens);
+    buffer.splice(buffer.begin(), textList, pos, tokensIt);
+    this->pos = tokensIt;
   }
   void Copy(size_t tokens = 1){
-    buffer = text.substr(cursor->getPosition(), tokens);
+    buffer.clear();
+    auto tokensIt = pos;
+    customAdvance(tokensIt, tokens);
+    buffer.insert(buffer.begin(), pos, tokensIt);
   }
   void Paste(){
-    text.insert(cursor->getPosition(), buffer);
-    cursor->nextPosition(buffer.size());
+    textList.insert(pos, buffer.begin(), buffer.end());
   }
+
   string GetText() const{
-    return text;
+    return {textList.begin(), textList.end()};
   }
+
   //debug methods
-//  const Position& GetCursor() const{
-//    return *cursor;
-//  }
-//  const string& GetBuffer() const {
-//    return  buffer;
-//  }
+  const list<char>& getTextList() const{
+    return textList;
+  }
+  list <char>::iterator getIterator() const{
+    return this->pos;
+  }
+  const list <char>& getBuffer() const {
+    return buffer;
+  }
 };
 
 void TypeText(Editor& editor, const string& text) {
