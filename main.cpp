@@ -9,7 +9,7 @@ int main()
 {
   TestRunner tr;
   LOG_DURATION("Total tests duration");
-  for (int i = 0; i < 1000000; ++i) { //5000ms
+  for (int i = 0; i < 1000000; ++i) { //5000ms vs 5552ms
     TestEditing();
     TestReverse();
     TestNoText();
@@ -20,6 +20,7 @@ int main()
   RUN_TEST(tr, TestNoText);
   RUN_TEST(tr, TestEmptyBuffer);
 
+  /*
   auto debugInfo = [](const Editor& editor){
     cout << "textList: {";
     for (const auto& it : editor.getTextList()) {
@@ -38,8 +39,6 @@ int main()
     cout << "}" << endl << endl;
   };
 
-
-/*
     Editor editor;
     const string text = "hello, world";
     for (char c : text) {

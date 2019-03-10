@@ -7,12 +7,16 @@ using namespace std;
 
 class Editor {
 private:
+  using Iterator = list<char>::iterator;
+
   list <char> textList;
-  list <char>::iterator pos;
+  Iterator pos;
   list <char> buffer;
-  void customAdvance(list <char>::iterator& it, size_t num){
+
+  void customAdvance(Iterator& it, size_t num){
     for (size_t i = 0; (i < num) && (it != textList.end()); ++i, ++it) { }
   }
+
 public:
   explicit Editor(){
     pos = textList.end();
@@ -36,10 +40,9 @@ public:
     this->pos = tokensIt;
   }
   void Copy(size_t tokens = 1){
-    buffer.clear();
     auto tokensIt = pos;
     customAdvance(tokensIt, tokens);
-    buffer.insert(buffer.begin(), pos, tokensIt);
+    buffer.assign(pos, tokensIt);
   }
   void Paste(){
     textList.insert(pos, buffer.begin(), buffer.end());
@@ -48,7 +51,6 @@ public:
   string GetText() const{
     return {textList.begin(), textList.end()};
   }
-
   //debug methods
   const list<char>& getTextList() const{
     return textList;
